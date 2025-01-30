@@ -1,0 +1,11 @@
+streamlit
+torch
+transformers
+llama-index
+langchain
+huggingface_hub
+langchain_community
+pyngrok
+beautifulsoup4
+pandas
+nltk
