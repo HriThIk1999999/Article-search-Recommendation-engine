@@ -6,7 +6,7 @@ import os
 from huggingface_hub import login
 from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.embeddings.langchain import LangchainEmbedding
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from transformers import pipeline
 from llama_index.core import VectorStoreIndex
 from dotenv import load_dotenv
 
@@ -30,17 +30,8 @@ else:
 @st.cache_resource
 def load_llm_and_embed_model():
     try:
-        # Load Hugging Face LLM (Ensure Model is Unlocked)
-        llm = HuggingFaceLLM(
-            context_window=4096,
-            max_new_tokens=500,
-            generate_kwargs={"temperature": 0.5, "do_sample": False},
-            tokenizer_name="meta-llama/Llama-2-7b-chat-hf",
-            model_name="meta-llama/Llama-2-7b-chat-hf",
-            device_map="auto",
-            model_kwargs={"torch_dtype": torch.float16}
-        )
-
+        # Use Hugging Face transformer model directly
+        model = pipeline("text-generation", model="meta-llama/Llama-2-7b-chat-hf")
         # Load Hugging Face Embeddings
         embed_model = LangchainEmbedding(HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2"))
         logging.info("✅ Models loaded successfully!")
