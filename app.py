@@ -25,8 +25,6 @@ if HF_TOKEN is None:
 else:
     logging.info("✅ Hugging Face token loaded successfully.")
 
-# Authenticate with Hugging Face using the token
-login(HF_TOKEN)
 
 # Ensure Streamlit caches models correctly
 @st.cache_resource
