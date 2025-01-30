@@ -12,10 +12,22 @@ from llama_index.core import VectorStoreIndex
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 
-# Hugging Face Authentication (Set Token Securely)
-HF_TOKEN = "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"  # Replace with your token
-os.environ["HUGGINGFACE_TOKEN"] = HF_TOKEN  # Set as environment variable
-login(HF_TOKEN)  # Authenticate
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get the Hugging Face token from the environment variable
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+# Check if the token is correctly loaded
+print(HF_TOKEN)  # This should print the Hugging Face token
+from huggingface_hub import login
+
+# Authenticate with Hugging Face using the token
+login(HF_TOKEN)
+
 
 # Ensure Streamlit caches models correctly
 @st.cache_resource
