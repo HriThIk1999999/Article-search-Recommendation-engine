@@ -3,7 +3,8 @@ torch
 transformers
 llama-index==0.12.14
 llama-index-llms-huggingface==0.4.2
-langchain
+llama-index-embeddings-langchain==0.3.0  # Add this to include langchain embeddings
+langchain==0.0.144 
 huggingface_hub
 langchain_community
 pyngrok
