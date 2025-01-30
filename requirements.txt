@@ -9,3 +9,4 @@ pyngrok
 beautifulsoup4
 pandas
 nltk
+python-dotenv
