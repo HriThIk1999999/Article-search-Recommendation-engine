@@ -1,7 +1,8 @@
 streamlit
 torch
 transformers
-llama-index
+llama-index==0.12.14
+llama-index-llms-huggingface==0.4.2
 langchain
 huggingface_hub
 langchain_community
