@@ -8,12 +8,10 @@ from llama_index.llms.huggingface import HuggingFaceLLM
 from llama_index.embeddings.langchain import LangchainEmbedding
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from llama_index.core import VectorStoreIndex
+from dotenv import load_dotenv
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
-
-from dotenv import load_dotenv
-import os
 
 # Load environment variables from .env file
 load_dotenv()
@@ -22,12 +20,13 @@ load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 # Check if the token is correctly loaded
-print(HF_TOKEN)  # This should print the Hugging Face token
-from huggingface_hub import login
+if HF_TOKEN is None:
+    logging.error("❌ Hugging Face token is not set. Please add it to the .env file.")
+else:
+    logging.info("✅ Hugging Face token loaded successfully.")
 
 # Authenticate with Hugging Face using the token
 login(HF_TOKEN)
-
 
 # Ensure Streamlit caches models correctly
 @st.cache_resource
@@ -54,7 +53,7 @@ def load_llm_and_embed_model():
         logging.error(f"❌ Error loading models: {e}")
         raise
 
-#  Load embeddings from saved file
+# Load embeddings from saved file
 def load_embeddings(file_path="/content/dataset/article_embeddings.pkl"):
     try:
         with open(file_path, 'rb') as f:
@@ -96,14 +95,14 @@ def main():
             response = query_engine.query(query)
             st.write("📝 Response:", response.response.strip())
 
-            #  Free GPU Memory After Query
+            # Free GPU Memory After Query
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
-                logging.info("CUDA cache cleared.")
+                logging.info("✅ CUDA cache cleared.")
 
     # Handle GPU Out of Memory Errors
     except torch.cuda.OutOfMemoryError as e:
-        st.error(f"CUDA out of memory error: {str(e)}")
+        st.error(f"⚠️ CUDA out of memory error: {str(e)}")
         logging.error(f"CUDA OOM error: {str(e)}")
 
         if torch.cuda.is_available():
@@ -112,8 +111,9 @@ def main():
 
     # Handle General Errors
     except Exception as e:
-        st.error(f" An error occurred: {e}")
+        st.error(f"❌ An error occurred: {e}")
         logging.error(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
+
