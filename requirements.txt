@@ -1,7 +1,6 @@
 streamlit
 torch
 transformers
-transformers==4.36.2
 llama-index==0.12.14
 llama-index-llms-huggingface==0.4.2
 llama-index-embeddings-langchain==0.3.0  # Add this to include langchain embeddings
