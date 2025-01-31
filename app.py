@@ -30,7 +30,7 @@ else:
 def load_llm_and_embed_model():
     try:
         from transformers import pipeline
-        model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+        model_name = "meta-llama/Llama-2-7b-chat-hf"
         # ✅ Initialize Hugging Face text-generation pipeline
         llm = pipeline(
             "text-generation", 
