@@ -29,11 +29,17 @@ else:
 @st.cache_resource
 def load_llm_and_embed_model():
     try:
-        # ✅ Load Hugging Face model (TinyLlama instead of Llama-2)
-        model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # ✅ Using TinyLlama (1.1B)
-        llm = pipeline("text-generation", model=model_name, device=0 if torch.cuda.is_available() else -1)
-
-        # ✅ Load Hugging Face Embeddings (Fast and Efficient)
+        from transformers import pipeline
+        model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+        # ✅ Initialize Hugging Face text-generation pipeline
+        llm = pipeline(
+            "text-generation", 
+            model=model_name, 
+            tokenizer=model_name,  # ✅ Explicitly specify tokenizer
+            device=0 if torch.cuda.is_available() else -1 
+        )
+    
+    # ✅ Load Hugging Face Embeddings (Fast and Efficient)
         embed_model = LangchainEmbedding(HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2"))
         logging.info("✅ Models loaded successfully!")
 
