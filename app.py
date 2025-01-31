@@ -4,9 +4,9 @@ import torch
 import logging
 import os
 from huggingface_hub import login
-from llama_index.llms.huggingface import HuggingFaceLLM
-from llama_index.embeddings.langchain import LangchainEmbedding
 from transformers import pipeline
+from llama_index.embeddings.langchain import LangchainEmbedding
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from llama_index.core import VectorStoreIndex
 from dotenv import load_dotenv
 
@@ -25,14 +25,15 @@ if HF_TOKEN is None:
 else:
     logging.info("✅ Hugging Face token loaded successfully.")
 
-
 # Ensure Streamlit caches models correctly
 @st.cache_resource
 def load_llm_and_embed_model():
     try:
-        # Use Hugging Face transformer model directly
-        model = pipeline("text-generation", model="meta-llama/Llama-2-7b-chat-hf")
-        # Load Hugging Face Embeddings
+        # ✅ Load Hugging Face model (TinyLlama instead of Llama-2)
+        model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # ✅ Using TinyLlama (1.1B)
+        llm = pipeline("text-generation", model=model_name, device=0 if torch.cuda.is_available() else -1)
+
+        # ✅ Load Hugging Face Embeddings (Fast and Efficient)
         embed_model = LangchainEmbedding(HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2"))
         logging.info("✅ Models loaded successfully!")
 
@@ -42,7 +43,7 @@ def load_llm_and_embed_model():
         logging.error(f"❌ Error loading models: {e}")
         raise
 
-# Load embeddings from saved file
+# ✅ Load embeddings from saved file
 def load_embeddings(file_path="/content/dataset/article_embeddings.pkl"):
     try:
         with open(file_path, 'rb') as f:
@@ -52,31 +53,29 @@ def load_embeddings(file_path="/content/dataset/article_embeddings.pkl"):
         logging.error(f"❌ Error loading embeddings: {e}")
         raise
 
-# Configure the query engine
+# ✅ Configure the query engine
 def configure_query_engine(index, embed_model, llm):
     try:
-        # Create Query Engine (No SentenceSplitter)
         query_engine = index.as_query_engine(llm=llm)
         return query_engine
-
     except Exception as e:
         logging.error(f"❌ Error configuring query engine: {e}")
         raise
 
-# Main Streamlit Function
+# ✅ Main Streamlit Function
 def main():
     st.title("📖 Article Recommendation Search Engine - The Guardian")
 
-    # Add a description to explain the app to users
-    st.markdown("Welcome to the **Article Search Engine**. Ask questions about the articles, and get relevant responses based on the search engine model.")
+    # Add a description for users
+    st.markdown("Welcome to the **Article Search Engine**. Ask questions about the articles, and get relevant responses.")
 
     try:
-        # Load LLM and Embeddings
+        # ✅ Load LLM and Embeddings
         llm, embed_model = load_llm_and_embed_model()
         index = load_embeddings()
         query_engine = configure_query_engine(index, embed_model, llm)
 
-        # User Query Input
+        # ✅ User Query Input
         query = st.text_input("🔍 Ask a question about articles:")
 
         if query:
@@ -84,12 +83,11 @@ def main():
             response = query_engine.query(query)
             st.write("📝 Response:", response.response.strip())
 
-            # Free GPU Memory After Query
+            # ✅ Free GPU Memory After Query
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
                 logging.info("✅ CUDA cache cleared.")
 
-    # Handle GPU Out of Memory Errors
     except torch.cuda.OutOfMemoryError as e:
         st.error(f"⚠️ CUDA out of memory error: {str(e)}")
         logging.error(f"CUDA OOM error: {str(e)}")
@@ -98,11 +96,9 @@ def main():
             torch.cuda.empty_cache()
             logging.warning("✅ CUDA memory cleared, try again.")
 
-    # Handle General Errors
     except Exception as e:
         st.error(f"❌ An error occurred: {e}")
         logging.error(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
-
